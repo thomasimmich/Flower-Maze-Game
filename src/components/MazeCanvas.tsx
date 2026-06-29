@@ -63,20 +63,16 @@ const MazeCanvas: React.FC<MazeCanvasProps> = ({
     ctx.fillStyle = theme.bg;
     ctx.fillRect(0, 0, W, H);
 
-    // ── Cell floors ─────────────────────────────────────────────────────────
+    // ── Cell floors (fill entire cell, no gaps) ─────────────────────────────
     for (let r = 0; r < rows; r++) {
       for (let c = 0; c < cols; c++) {
         const cell = cells[r][c];
         const cx = c * CELL_SIZE;
         const cy = r * CELL_SIZE;
 
+        // Fill full cell — no inset, no gaps
         ctx.fillStyle = (r + c) % 2 === 0 ? theme.floor : theme.floorAlt;
-        ctx.fillRect(
-          cx + theme.wallWidth,
-          cy + theme.wallWidth,
-          CELL_SIZE - theme.wallWidth * 2,
-          CELL_SIZE - theme.wallWidth * 2
-        );
+        ctx.fillRect(cx, cy, CELL_SIZE, CELL_SIZE);
 
         // Exit door glow
         if (cell.isExit) {
@@ -93,13 +89,8 @@ const MazeCanvas: React.FC<MazeCanvasProps> = ({
             ctx.fillStyle = grd;
             ctx.fillRect(cx, cy, CELL_SIZE, CELL_SIZE);
           } else {
-            ctx.fillStyle = 'rgba(60,20,0,0.6)';
-            ctx.fillRect(
-              cx + theme.wallWidth,
-              cy + theme.wallWidth,
-              CELL_SIZE - theme.wallWidth * 2,
-              CELL_SIZE - theme.wallWidth * 2
-            );
+            ctx.fillStyle = 'rgba(60,20,0,0.4)';
+            ctx.fillRect(cx, cy, CELL_SIZE, CELL_SIZE);
           }
         }
       }
