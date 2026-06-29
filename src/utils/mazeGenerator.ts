@@ -29,9 +29,9 @@ function carveMaze(cells: Cell[][], rows: number, cols: number, startR: number, 
     const dirs = shuffle(
       [
         { dr: -1, dc: 0, wall: 'top' as const, opp: 'bottom' as const },
-        { dr: 1, dc: 0, wall: 'bottom' as const, opp: 'top' as const },
+        { dr: 1,  dc: 0, wall: 'bottom' as const, opp: 'top' as const },
         { dr: 0, dc: -1, wall: 'left' as const, opp: 'right' as const },
-        { dr: 0, dc: 1, wall: 'right' as const, opp: 'left' as const },
+        { dr: 0,  dc: 1, wall: 'right' as const, opp: 'left' as const },
       ],
       rng
     );
@@ -48,9 +48,7 @@ function carveMaze(cells: Cell[][], rows: number, cols: number, startR: number, 
   carve(startR, startC);
 }
 
-const FURNITURE = ['🪑', '🛋️', '📦', '🗄️', '🪣', '🧺', '🪴', '🖼️'];
-
-// ── ROOM: open rectangular room with hidden flowers ──────────────────────────
+// ── ROOM ─────────────────────────────────────────────────────────────────────
 export function generateRoom(level: number): GameLevel {
   const seed = level * 99991 + 1234;
   const rng = makeRng(seed);
@@ -58,7 +56,6 @@ export function generateRoom(level: number): GameLevel {
   const cols = Math.min(6 + Math.floor(level * 0.5), 10);
   const rows = Math.min(5 + Math.floor(level * 0.5), 9);
 
-  // Open room — only outer border walls
   const cells: Cell[][] = [];
   for (let r = 0; r < rows; r++) {
     cells[r] = [];
@@ -81,7 +78,7 @@ export function generateRoom(level: number): GameLevel {
   cells[exitRow][cols - 1].walls.right = false;
   cells[exitRow][cols - 1].isExit = true;
 
-  // ── Place flowers ──────────────────────────────────────────────────────
+  // Place flowers
   const flowerCount = 2 + level;
   const allPositions: Position[] = [];
   for (let r = 0; r < rows; r++) {
@@ -121,30 +118,10 @@ export function generateRoom(level: number): GameLevel {
     emoji: shuffledEmojis[i % shuffledEmojis.length],
   }));
 
-  // ── Place furniture to hide flowers ────────────────────────────────────
-  const shuffledFurniture = shuffle(FURNITURE, rng);
-  flowers.forEach((flower, i) => {
-    cells[flower.position.y][flower.position.x].furniture =
-      shuffledFurniture[i % shuffledFurniture.length];
-    cells[flower.position.y][flower.position.x].hiddenFlower = true;
-  });
-
-  // Add a few extra decoy furniture pieces (no flower underneath)
-  const decoyCount = Math.min(level + 1, 5);
-  const emptyPositions = allPositions.filter(
-    (p) => !pickedPositions.find((f) => f.x === p.x && f.y === p.y)
-      && !(p.x === 0 && p.y === 0)
-  );
-  const decoys = shuffle(emptyPositions, rng).slice(0, decoyCount);
-  decoys.forEach((pos, i) => {
-    cells[pos.y][pos.x].furniture =
-      shuffledFurniture[(flowers.length + i) % shuffledFurniture.length];
-  });
-
   return { level, cols, rows, cells, flowers, playerStart, exitPosition };
 }
 
-// ── MAZE: classic labyrinth to reach the next room ───────────────────────────
+// ── MAZE ─────────────────────────────────────────────────────────────────────
 export function generateMaze(level: number): GameLevel {
   const seed = level * 55555 + 9876;
   const rng = makeRng(seed);
@@ -157,8 +134,7 @@ export function generateMaze(level: number): GameLevel {
     cells[r] = [];
     for (let c = 0; c < cols; c++) {
       cells[r][c] = {
-        x: c,
-        y: r,
+        x: c, y: r,
         walls: { top: true, right: true, bottom: true, left: true },
       };
     }

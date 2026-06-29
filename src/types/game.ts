@@ -20,8 +20,6 @@ export interface Cell {
     left: boolean;
   };
   isExit?: boolean;
-  furniture?: string;
-  hiddenFlower?: boolean;
 }
 
 export interface GameLevel {
@@ -34,7 +32,5 @@ export interface GameLevel {
   exitPosition: Position;
 }
 
-// 'room' = Blumen gießen im Raum
-// 'maze' = Labyrinth zum nächsten Raum durchqueren
 export type GamePhase = 'room' | 'maze';
 export type GameState = 'playing' | 'levelComplete';

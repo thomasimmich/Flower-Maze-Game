@@ -164,13 +164,8 @@ const MazeCanvas: React.FC<MazeCanvasProps> = ({
       for (const flower of flowers) {
         const fx = flower.position.x * CELL_SIZE + CELL_SIZE / 2;
         const fy = flower.position.y * CELL_SIZE + CELL_SIZE / 2;
-        const cell = gameLevel.cells[flower.position.y][flower.position.x];
-        const dist = Math.abs(flower.position.x - playerPos.x)
-          + Math.abs(flower.position.y - playerPos.y);
-        const isNearby = dist <= 1;
 
         if (flower.watered) {
-          // Watered: always fully visible with green glow
           const grd = ctx.createRadialGradient(fx, fy, 2, fx, fy, CELL_SIZE / 2);
           grd.addColorStop(0, 'rgba(82,183,136,0.55)');
           grd.addColorStop(1, 'rgba(82,183,136,0)');
@@ -184,36 +179,7 @@ const MazeCanvas: React.FC<MazeCanvasProps> = ({
           ctx.fillText(flower.emoji, fx, fy);
           ctx.font = EF(CELL_SIZE * 0.28);
           ctx.fillText('💧', fx + CELL_SIZE * 0.22, fy - CELL_SIZE * 0.22);
-
-        } else if (cell.furniture && !isNearby) {
-          // Hidden behind furniture — flower faintly visible
-          ctx.globalAlpha = 0.28;
-          ctx.font = EF(CELL_SIZE * 0.45);
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          ctx.fillText(flower.emoji, fx, fy + 4);
-          ctx.globalAlpha = 1;
-          // Furniture on top
-          ctx.font = EF(CELL_SIZE * 0.62);
-          ctx.fillText(cell.furniture, fx, fy);
-
-        } else if (cell.furniture && isNearby) {
-          // Player is adjacent — flower peeks out from behind furniture
-          ctx.fillStyle = 'rgba(255,220,50,0.15)';
-          ctx.beginPath();
-          ctx.arc(fx, fy, CELL_SIZE * 0.42, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.globalAlpha = 0.65;
-          ctx.font = EF(CELL_SIZE * 0.45);
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          ctx.fillText(flower.emoji, fx, fy + 4);
-          ctx.globalAlpha = 1;
-          ctx.font = EF(CELL_SIZE * 0.5);
-          ctx.fillText(cell.furniture, fx, fy - 2);
-
         } else {
-          // No furniture — visible flower with yellow ring
           ctx.fillStyle = 'rgba(255,220,50,0.22)';
           ctx.beginPath();
           ctx.arc(fx, fy, CELL_SIZE * 0.42, 0, Math.PI * 2);
@@ -224,28 +190,11 @@ const MazeCanvas: React.FC<MazeCanvasProps> = ({
           ctx.arc(fx, fy, CELL_SIZE * 0.42, 0, Math.PI * 2);
           ctx.stroke();
           ctx.lineWidth = WALL_WIDTH;
-          ctx.strokeStyle = isRoom ? '#74c69d' : '#52b788';
-          ctx.globalAlpha = 1;
+          ctx.strokeStyle = theme.wall;
           ctx.font = EF(CELL_SIZE * 0.6);
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
           ctx.fillText(flower.emoji, fx, fy);
-        }
-      }
-
-      // Decoy furniture (no flower underneath)
-      for (let r = 0; r < gameLevel.rows; r++) {
-        for (let c = 0; c < gameLevel.cols; c++) {
-          const cell = gameLevel.cells[r][c];
-          if (!cell.furniture) continue;
-          const hasFlower = flowers.some((f) => f.position.x === c && f.position.y === r);
-          if (hasFlower) continue;
-          const fx = c * CELL_SIZE + CELL_SIZE / 2;
-          const fy = r * CELL_SIZE + CELL_SIZE / 2;
-          ctx.font = EF(CELL_SIZE * 0.62);
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          ctx.fillText(cell.furniture, fx, fy);
         }
       }
     }
