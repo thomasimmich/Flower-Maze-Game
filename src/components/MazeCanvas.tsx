@@ -206,41 +206,20 @@ const MazeCanvas: React.FC<MazeCanvasProps> = ({
       const py = playerPos.y * CELL_SIZE + CELL_SIZE / 2;
       const r = PLAYER_RADIUS;
 
+      // Glow
       const grd = ctx.createRadialGradient(px, py, 1, px, py, r + 8);
-      grd.addColorStop(0, 'rgba(255,255,180,0.7)');
+      grd.addColorStop(0, 'rgba(255,255,180,0.6)');
       grd.addColorStop(1, 'rgba(255,255,180,0)');
       ctx.fillStyle = grd;
       ctx.beginPath();
       ctx.arc(px, py, r + 8, 0, Math.PI * 2);
       ctx.fill();
 
-      ctx.fillStyle = '#f4d03f';
-      ctx.beginPath();
-      ctx.arc(px, py, r, 0, Math.PI * 2);
-      ctx.fill();
-
-      ctx.strokeStyle = '#b7950b';
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.arc(px, py, r, 0, Math.PI * 2);
-      ctx.stroke();
-
-      ctx.fillStyle = '#333';
-      ctx.beginPath();
-      ctx.arc(px - 5, py - 4, 3, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.beginPath();
-      ctx.arc(px + 5, py - 4, 3, 0, Math.PI * 2);
-      ctx.fill();
-
-      ctx.strokeStyle = '#333';
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.arc(px, py + 2, 6, 0.15 * Math.PI, 0.85 * Math.PI);
-      ctx.stroke();
-
-      ctx.lineWidth = theme.wallWidth;
-      ctx.strokeStyle = isRoom ? '#74c69d' : '#52b788';
+      // Bauer-Emoji
+      ctx.font = EF(CELL_SIZE * 0.72);
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('🧑‍🌾', px, py);
     }
   }, [gameLevel, playerPos, flowers, allWatered, phase]);
 
