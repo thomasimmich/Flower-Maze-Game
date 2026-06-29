@@ -17,15 +17,37 @@ const HUD: React.FC<HUDProps> = ({ flowers, level, elapsed, phase }) => {
   const seconds = totalSeconds % 60;
   const timeStr = `${minutes > 0 ? `${minutes}:` : ''}${String(seconds).padStart(2, '0')}`;
 
+  const isRoom = phase === 'room';
+
   return (
-    <div style={styles.hud}>
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        background: isRoom
+          ? 'linear-gradient(135deg, #064e3b, #065f46)'
+          : 'linear-gradient(135deg, #1e1b4b, #312e81)',
+        padding: '12px 20px',
+        borderBottom: '3px solid transparent',
+        backgroundImage: isRoom
+          ? 'linear-gradient(135deg, #064e3b, #065f46), linear-gradient(90deg, #6fcf97, #059669)'
+          : 'linear-gradient(135deg, #1e1b4b, #312e81), linear-gradient(90deg, #a78bfa, #7c3aed)',
+        backgroundOrigin: 'border-box',
+        backgroundClip: 'padding-box, border-box',
+        minHeight: '64px',
+        flexWrap: 'wrap',
+        gap: '8px',
+        userSelect: 'none',
+      }}
+    >
       <div style={styles.levelBadge}>
         Level {level}
-        <span style={styles.phaseBadge}>{phase === 'room' ? '🏠' : '🌀'}</span>
+        <span style={styles.phaseBadge}>{isRoom ? '🏠' : '🌀'}</span>
       </div>
 
       <div style={styles.flowerSection}>
-        {phase === 'room' ? (
+        {isRoom ? (
           <>
             {watered.map((f) => (
               <span key={f.id} style={styles.flowered}>{f.emoji}</span>
@@ -43,7 +65,7 @@ const HUD: React.FC<HUDProps> = ({ flowers, level, elapsed, phase }) => {
       </div>
 
       <div style={styles.right}>
-        {phase === 'room' && (
+        {isRoom && (
           <span style={styles.counter}>{watered.length}/{flowers.length} 💧</span>
         )}
         <span style={styles.timer}>⏱ {timeStr}</span>
@@ -53,32 +75,22 @@ const HUD: React.FC<HUDProps> = ({ flowers, level, elapsed, phase }) => {
 };
 
 const styles: Record<string, React.CSSProperties> = {
-  hud: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    background: 'linear-gradient(135deg, #1a472a 0%, #2d6a4f 100%)',
-    padding: '10px 16px',
-    borderBottom: '3px solid #52b788',
-    minHeight: '56px',
-    flexWrap: 'wrap',
-    gap: '8px',
-    userSelect: 'none',
-  },
   levelBadge: {
-    background: '#52b788',
+    background: 'rgba(255,255,255,0.15)',
     color: '#fff',
     borderRadius: '20px',
-    padding: '4px 14px',
+    padding: '6px 18px',
     fontWeight: 'bold',
-    fontSize: '15px',
+    fontSize: '18px',
     display: 'flex',
     alignItems: 'center',
     gap: '6px',
     whiteSpace: 'nowrap',
+    backdropFilter: 'blur(4px)',
+    border: '1px solid rgba(255,255,255,0.2)',
   },
   phaseBadge: {
-    fontSize: '16px',
+    fontSize: '18px',
   },
   flowerSection: {
     display: 'flex',
@@ -89,22 +101,22 @@ const styles: Record<string, React.CSSProperties> = {
     flexWrap: 'wrap',
   },
   flowered: {
-    fontSize: '22px',
-    filter: 'drop-shadow(0 0 4px #52b788)',
+    fontSize: '26px',
+    filter: 'drop-shadow(0 0 5px #6fcf97)',
   },
   dry: {
-    fontSize: '22px',
+    fontSize: '26px',
     opacity: 0.35,
     filter: 'grayscale(80%)',
   },
   done: {
     color: '#b7e4c7',
     fontWeight: 'bold',
-    fontSize: '14px',
+    fontSize: '16px',
   },
   mazeHint: {
-    color: '#b7e4c7',
-    fontSize: '14px',
+    color: '#c4b5fd',
+    fontSize: '16px',
     fontWeight: 'bold',
   },
   right: {
@@ -115,15 +127,16 @@ const styles: Record<string, React.CSSProperties> = {
   },
   counter: {
     color: '#b7e4c7',
-    fontSize: '13px',
+    fontSize: '14px',
     fontWeight: 'bold',
     whiteSpace: 'nowrap',
   },
   timer: {
-    color: '#b7e4c7',
-    fontSize: '15px',
+    color: '#fff',
+    fontSize: '17px',
     fontWeight: 'bold',
     whiteSpace: 'nowrap',
+    letterSpacing: '0.5px',
   },
 };
 

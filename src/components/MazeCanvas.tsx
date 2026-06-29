@@ -9,9 +9,8 @@ interface MazeCanvasProps {
   phase: GamePhase;
   onTap: (cellX: number, cellY: number) => void;
 }
-const CELL_SIZE = 48;
-const WALL_WIDTH = 3;
-const PLAYER_RADIUS = 14;
+const CELL_SIZE = 64;
+const PLAYER_RADIUS = 18;
 const EF = (size: number) =>
   `${size}px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", serif`;
 
@@ -44,41 +43,25 @@ const MazeCanvas: React.FC<MazeCanvasProps> = ({
     // ── Theme colors ────────────────────────────────────────────────────────
     const theme = isRoom
       ? {
-          bg: '#0a1f0e',
-          floor: '#1a4a28',
-          floorAlt: '#1e5530',
-          wall: '#52c788',
+          bg: '#0e1a0e',
+          floor: '#2d5a27',
+          floorAlt: '#336b2d',
+          wall: '#6fcf97',
           wallWidth: 2,
-          exitGlow: [255, 200, 50] as [number,number,number],
+          exitGlow: [255, 200, 50] as [number, number, number],
         }
       : {
-          bg: '#0a0a1a',
-          floor: '#12122e',
-          floorAlt: '#1a1a3a',
-          wall: '#7c6fc4',
-          wallWidth: 4,
-          exitGlow: [140, 100, 255] as [number,number,number],
+          bg: '#070712',
+          floor: '#0f0f2e',
+          floorAlt: '#141440',
+          wall: '#a78bfa',
+          wallWidth: 5,
+          exitGlow: [167, 139, 250] as [number, number, number],
         };
 
     // ── Background ──────────────────────────────────────────────────────────
     ctx.fillStyle = theme.bg;
     ctx.fillRect(0, 0, W, H);
-
-    // ── Subtle grid pattern for maze (stone tiles) ───────────────────────────
-    if (!isRoom) {
-      ctx.strokeStyle = 'rgba(80,70,140,0.25)';
-      ctx.lineWidth = 1;
-      for (let r = 0; r < rows; r++) {
-        for (let c = 0; c < cols; c++) {
-          const cx = c * CELL_SIZE;
-          const cy = r * CELL_SIZE;
-          // Checkerboard stone effect
-          ctx.fillStyle = (r + c) % 2 === 0 ? theme.floor : theme.floorAlt;
-          ctx.fillRect(cx + theme.wallWidth, cy + theme.wallWidth,
-            CELL_SIZE - theme.wallWidth * 2, CELL_SIZE - theme.wallWidth * 2);
-        }
-      }
-    }
 
     // ── Cell floors ─────────────────────────────────────────────────────────
     for (let r = 0; r < rows; r++) {
@@ -87,14 +70,13 @@ const MazeCanvas: React.FC<MazeCanvasProps> = ({
         const cx = c * CELL_SIZE;
         const cy = r * CELL_SIZE;
 
-        if (isRoom) {
-          // Warm wood-like floor
-          ctx.fillStyle = (r + c) % 2 === 0 ? '#1e5530' : '#1a4a28';
-          ctx.fillRect(
-            cx + theme.wallWidth, cy + theme.wallWidth,
-            CELL_SIZE - theme.wallWidth * 2, CELL_SIZE - theme.wallWidth * 2
-          );
-        }
+        ctx.fillStyle = (r + c) % 2 === 0 ? theme.floor : theme.floorAlt;
+        ctx.fillRect(
+          cx + theme.wallWidth,
+          cy + theme.wallWidth,
+          CELL_SIZE - theme.wallWidth * 2,
+          CELL_SIZE - theme.wallWidth * 2
+        );
 
         // Exit door glow
         if (cell.isExit) {
@@ -103,7 +85,7 @@ const MazeCanvas: React.FC<MazeCanvasProps> = ({
           if (canExit) {
             const grd = ctx.createRadialGradient(
               cx + CELL_SIZE / 2, cy + CELL_SIZE / 2, 2,
-              cx + CELL_SIZE / 2, cy + CELL_SIZE / 2, CELL_SIZE * 0.8
+              cx + CELL_SIZE / 2, cy + CELL_SIZE / 2, CELL_SIZE * 1.0
             );
             const a = 0.5 + 0.35 * Math.sin(pulseRef.current);
             grd.addColorStop(0, `rgba(${gr},${gg},${gb},${a})`);
@@ -112,8 +94,12 @@ const MazeCanvas: React.FC<MazeCanvasProps> = ({
             ctx.fillRect(cx, cy, CELL_SIZE, CELL_SIZE);
           } else {
             ctx.fillStyle = 'rgba(60,20,0,0.6)';
-            ctx.fillRect(cx + theme.wallWidth, cy + theme.wallWidth,
-              CELL_SIZE - theme.wallWidth * 2, CELL_SIZE - theme.wallWidth * 2);
+            ctx.fillRect(
+              cx + theme.wallWidth,
+              cy + theme.wallWidth,
+              CELL_SIZE - theme.wallWidth * 2,
+              CELL_SIZE - theme.wallWidth * 2
+            );
           }
         }
       }
@@ -124,10 +110,9 @@ const MazeCanvas: React.FC<MazeCanvasProps> = ({
     ctx.lineWidth = theme.wallWidth;
     ctx.lineCap = 'square';
 
-    // Maze walls get a glow effect
     if (!isRoom) {
-      ctx.shadowColor = '#7c6fc4';
-      ctx.shadowBlur = 6;
+      ctx.shadowColor = '#a78bfa';
+      ctx.shadowBlur = 8;
     }
 
     for (let r = 0; r < rows; r++) {
@@ -189,7 +174,7 @@ const MazeCanvas: React.FC<MazeCanvasProps> = ({
           ctx.beginPath();
           ctx.arc(fx, fy, CELL_SIZE * 0.42, 0, Math.PI * 2);
           ctx.stroke();
-          ctx.lineWidth = WALL_WIDTH;
+          ctx.lineWidth = theme.wallWidth;
           ctx.strokeStyle = theme.wall;
           ctx.font = EF(CELL_SIZE * 0.6);
           ctx.textAlign = 'center';
@@ -205,12 +190,12 @@ const MazeCanvas: React.FC<MazeCanvasProps> = ({
       const py = playerPos.y * CELL_SIZE + CELL_SIZE / 2;
       const r = PLAYER_RADIUS;
 
-      const grd = ctx.createRadialGradient(px, py, 1, px, py, r + 6);
+      const grd = ctx.createRadialGradient(px, py, 1, px, py, r + 8);
       grd.addColorStop(0, 'rgba(255,255,180,0.7)');
       grd.addColorStop(1, 'rgba(255,255,180,0)');
       ctx.fillStyle = grd;
       ctx.beginPath();
-      ctx.arc(px, py, r + 6, 0, Math.PI * 2);
+      ctx.arc(px, py, r + 8, 0, Math.PI * 2);
       ctx.fill();
 
       ctx.fillStyle = '#f4d03f';
@@ -226,19 +211,19 @@ const MazeCanvas: React.FC<MazeCanvasProps> = ({
 
       ctx.fillStyle = '#333';
       ctx.beginPath();
-      ctx.arc(px - 4, py - 3, 2.5, 0, Math.PI * 2);
+      ctx.arc(px - 5, py - 4, 3, 0, Math.PI * 2);
       ctx.fill();
       ctx.beginPath();
-      ctx.arc(px + 4, py - 3, 2.5, 0, Math.PI * 2);
+      ctx.arc(px + 5, py - 4, 3, 0, Math.PI * 2);
       ctx.fill();
 
       ctx.strokeStyle = '#333';
       ctx.lineWidth = 2;
       ctx.beginPath();
-      ctx.arc(px, py + 1, 5, 0.15 * Math.PI, 0.85 * Math.PI);
+      ctx.arc(px, py + 2, 6, 0.15 * Math.PI, 0.85 * Math.PI);
       ctx.stroke();
 
-      ctx.lineWidth = WALL_WIDTH;
+      ctx.lineWidth = theme.wallWidth;
       ctx.strokeStyle = isRoom ? '#74c69d' : '#52b788';
     }
   }, [gameLevel, playerPos, flowers, allWatered, phase]);
@@ -288,7 +273,7 @@ const MazeCanvas: React.FC<MazeCanvasProps> = ({
   const { cols, rows } = gameLevel;
   const canvasWidth = cols * CELL_SIZE;
   const canvasHeight = rows * CELL_SIZE;
-  const maxW = Math.min(window.innerWidth - 16, 600);
+  const maxW = Math.min(window.innerWidth - 8, window.innerHeight - 220, 700);
   const scale = Math.min(1, maxW / canvasWidth);
 
   return (

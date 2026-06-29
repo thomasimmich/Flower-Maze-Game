@@ -8,7 +8,7 @@ html, body, #root {
   height: 100%;
   width: 100%;
   overflow: hidden;
-  background: #081c15;
+  background: #070712;
 }
 
 @keyframes pulse {
@@ -19,4 +19,29 @@ html, body, #root {
 button:active {
   transform: scale(0.95);
   opacity: 0.85;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0f0f2e;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #6fcf97, #a78bfa);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #86efac, #c4b5fd);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #a78bfa #0f0f2e;
 }

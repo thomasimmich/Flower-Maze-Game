@@ -14,6 +14,7 @@ function formatTime(ms: number): string {
 }
 
 const Game: React.FC = () => {
+  const [showTitle, setShowTitle] = useState(true);
   const [levelNumber, setLevelNumber] = useState(1);
   const [phase, setPhase] = useState<GamePhase>('room');
   const [gameLevel, setGameLevel] = useState(() => generateRoom(1));
@@ -204,6 +205,20 @@ const Game: React.FC = () => {
     ? 'Alle Blumen gegossen. Jetzt das Labyrinth!'
     : `Level ${levelNumber} komplett abgeschlossen! 🎉`;
   const nextBtnLabel = phase === 'room' ? 'Ins Labyrinth →' : 'Nächstes Level →';
+
+  if (showTitle) {
+    return (
+      <div style={{ minHeight: '100dvh', background: 'linear-gradient(135deg, #064e3b 0%, #1e1b4b 100%)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '24px' }}>
+        <div style={{ fontSize: '72px' }}>🌸</div>
+        <h1 style={{ color: '#fff', fontSize: '36px', fontWeight: 'bold', margin: 0, textAlign: 'center', textShadow: '0 0 30px rgba(167,139,250,0.8)' }}>Flower Maze</h1>
+        <p style={{ color: '#86efac', fontSize: '16px', margin: 0, textAlign: 'center', maxWidth: '280px', lineHeight: 1.6 }}>Finde alle Blumen, gieße sie und finde den Ausgang!</p>
+        <button onClick={() => setShowTitle(false)} style={{ background: 'linear-gradient(135deg, #059669, #7c3aed)', color: '#fff', border: 'none', padding: '16px 48px', borderRadius: '50px', fontSize: '20px', fontWeight: 'bold', cursor: 'pointer', marginTop: '16px', boxShadow: '0 0 30px rgba(167,139,250,0.5)' }}>
+          Spielen 🌿
+        </button>
+        <p style={{ color: '#4ade80', fontSize: '12px', margin: 0 }}>Level 1 • Blumen gießen • Labyrinth lösen</p>
+      </div>
+    );
+  }
 
   return (
     <div style={styles.root}>
