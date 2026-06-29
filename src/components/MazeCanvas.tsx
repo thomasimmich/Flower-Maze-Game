@@ -187,10 +187,15 @@ const MazeCanvas: React.FC<MazeCanvasProps> = ({
           ctx.fillText('💧', fx + CELL_SIZE * 0.22, fy - CELL_SIZE * 0.22);
 
         } else if (cell.furniture && !isNearby) {
-          // Hidden behind furniture — only show furniture
-          ctx.font = EF(CELL_SIZE * 0.62);
+          // Hidden behind furniture — flower faintly visible
+          ctx.globalAlpha = 0.28;
+          ctx.font = EF(CELL_SIZE * 0.45);
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
+          ctx.fillText(flower.emoji, fx, fy + 4);
+          ctx.globalAlpha = 1;
+          // Furniture on top
+          ctx.font = EF(CELL_SIZE * 0.62);
           ctx.fillText(cell.furniture, fx, fy);
 
         } else if (cell.furniture && isNearby) {
