@@ -43,12 +43,12 @@ const MazeCanvas: React.FC<MazeCanvasProps> = ({
     // ── Theme colors ────────────────────────────────────────────────────────
     const theme = isRoom
       ? {
-          bg: '#0e1a0e',
-          floor: '#2d5a27',
-          floorAlt: '#336b2d',
-          wall: '#6fcf97',
-          wallWidth: 2,
-          exitGlow: [255, 200, 50] as [number, number, number],
+          bg: '#1a3a1a',
+          floor: '#3a7d2c',       // helles Grasgrün
+          floorAlt: '#4a9438',    // etwas helleres Gras
+          wall: '#8B4513',        // braune Gartenzaun-Farbe
+          wallWidth: 3,
+          exitGlow: [255, 220, 80] as [number, number, number],
         }
       : {
           bg: '#070712',
@@ -73,6 +73,14 @@ const MazeCanvas: React.FC<MazeCanvasProps> = ({
         // Fill full cell — no inset, no gaps
         ctx.fillStyle = (r + c) % 2 === 0 ? theme.floor : theme.floorAlt;
         ctx.fillRect(cx, cy, CELL_SIZE, CELL_SIZE);
+
+        // Garten: kleine Gras-Punkte für Textur
+        if (isRoom) {
+          ctx.fillStyle = 'rgba(255,255,255,0.04)';
+          ctx.fillRect(cx + CELL_SIZE * 0.2, cy + CELL_SIZE * 0.2, 2, 2);
+          ctx.fillRect(cx + CELL_SIZE * 0.6, cy + CELL_SIZE * 0.65, 2, 2);
+          ctx.fillRect(cx + CELL_SIZE * 0.75, cy + CELL_SIZE * 0.3, 2, 2);
+        }
 
         // Exit door glow
         if (cell.isExit) {
@@ -104,6 +112,10 @@ const MazeCanvas: React.FC<MazeCanvasProps> = ({
     if (!isRoom) {
       ctx.shadowColor = '#a78bfa';
       ctx.shadowBlur = 8;
+    } else {
+      // Gartenzaun: leichter Schatten
+      ctx.shadowColor = 'rgba(0,0,0,0.5)';
+      ctx.shadowBlur = 3;
     }
 
     for (let r = 0; r < rows; r++) {
@@ -127,12 +139,25 @@ const MazeCanvas: React.FC<MazeCanvasProps> = ({
       const ex = exitPosition.x * CELL_SIZE + CELL_SIZE / 2;
       const ey = exitPosition.y * CELL_SIZE + CELL_SIZE / 2;
       const canExit = isRoom ? allWatered : true;
-      ctx.font = EF(CELL_SIZE * 0.55);
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.globalAlpha = canExit ? 1 : 0.25;
-      ctx.fillText(isRoom ? '🚪' : '🏁', ex, ey);
-      ctx.globalAlpha = 1;
+
+      if (isRoom) {
+        // Haus-Icon — gesperrt wenn noch Blumen fehlen
+        ctx.font = EF(CELL_SIZE * 0.72);
+        ctx.globalAlpha = canExit ? 1 : 0.4;
+        ctx.fillText('🏠', ex, ey);
+        ctx.globalAlpha = 1;
+        // Schloss-Overlay wenn gesperrt
+        if (!canExit) {
+          ctx.font = EF(CELL_SIZE * 0.35);
+          ctx.fillText('🔒', ex + CELL_SIZE * 0.2, ey + CELL_SIZE * 0.2);
+        }
+      } else {
+        ctx.font = EF(CELL_SIZE * 0.6);
+        ctx.globalAlpha = 1;
+        ctx.fillText('🏁', ex, ey);
+      }
     }
 
     // ── Flowers (room phase only) ────────────────────────────────────────────
