@@ -122,57 +122,30 @@ const Game: React.FC = () => {
     return () => window.removeEventListener('keydown', handleKey);
   }, [move]);
 
-  // ── Canvas tap ─────────────────────────────────────────────────────────────
+  // ── Canvas tap: nur Blumen gießen, keine Bewegung ─────────────────────────
   const handleTap = useCallback(
     (cellX: number, cellY: number) => {
       if (gameState !== 'playing') return;
+      if (phase !== 'room') return;
 
-      // Water flower on same cell (room phase)
-      if (phase === 'room') {
-        const adx = Math.abs(cellX - playerPos.x);
-        const ady = Math.abs(cellY - playerPos.y);
-
-        if (adx === 0 && ady === 0) {
-          const flower = flowers.find(
-            (f) => f.position.x === playerPos.x && f.position.y === playerPos.y && !f.watered
-          );
-          if (flower) {
-            setFlowers((prev) =>
-              prev.map((f) => (f.id === flower.id ? { ...f, watered: true } : f))
-            );
-            const remaining = flowers.filter((f) => !f.watered).length - 1;
-            if (remaining === 0) {
-              setMessage('🌟 Alle Blumen gegossen! Geh zur Tür!');
-              setTimeout(() => setMessage(''), 3000);
-            }
-          }
-          return;
-        }
-
-        // Also water when tapping directly on a flower in same cell
-        const onFlower = flowers.find(
-          (f) => f.position.x === cellX && f.position.y === cellY
-            && cellX === playerPos.x && cellY === playerPos.y && !f.watered
+      // Nur gießen wenn auf die eigene Zelle getippt wird
+      if (cellX === playerPos.x && cellY === playerPos.y) {
+        const flower = flowers.find(
+          (f) => f.position.x === playerPos.x && f.position.y === playerPos.y && !f.watered
         );
-        if (onFlower) {
+        if (flower) {
           setFlowers((prev) =>
-            prev.map((f) => (f.id === onFlower.id ? { ...f, watered: true } : f))
+            prev.map((f) => (f.id === flower.id ? { ...f, watered: true } : f))
           );
-          return;
+          const remaining = flowers.filter((f) => !f.watered).length - 1;
+          if (remaining === 0) {
+            setMessage('🌟 Alle Blumen gegossen! Geh zur Tür!');
+            setTimeout(() => setMessage(''), 3000);
+          }
         }
-
-        // Move toward tapped cell
-        if (adx >= ady && cellX !== playerPos.x) move(Math.sign(cellX - playerPos.x), 0);
-        else if (ady > 0) move(0, Math.sign(cellY - playerPos.y));
-      } else {
-        // In maze: just move
-        const adx = Math.abs(cellX - playerPos.x);
-        const ady = Math.abs(cellY - playerPos.y);
-        if (adx >= ady && cellX !== playerPos.x) move(Math.sign(cellX - playerPos.x), 0);
-        else if (ady > 0) move(0, Math.sign(cellY - playerPos.y));
       }
     },
-    [playerPos, flowers, move, gameState, phase]
+    [playerPos, flowers, gameState, phase]
   );
 
   // ── Auto-hint when stepping on flower ─────────────────────────────────────
