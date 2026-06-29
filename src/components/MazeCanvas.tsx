@@ -42,9 +42,44 @@ const MazeCanvas: React.FC<MazeCanvasProps> = ({
 
     const isRoom = phase === 'room';
 
+    // ── Theme colors ────────────────────────────────────────────────────────
+    const theme = isRoom
+      ? {
+          bg: '#0a1f0e',
+          floor: '#1a4a28',
+          floorAlt: '#1e5530',
+          wall: '#52c788',
+          wallWidth: 2,
+          exitGlow: [255, 200, 50] as [number,number,number],
+        }
+      : {
+          bg: '#0a0a1a',
+          floor: '#12122e',
+          floorAlt: '#1a1a3a',
+          wall: '#7c6fc4',
+          wallWidth: 4,
+          exitGlow: [140, 100, 255] as [number,number,number],
+        };
+
     // ── Background ──────────────────────────────────────────────────────────
-    ctx.fillStyle = isRoom ? '#0d2818' : '#081c15';
+    ctx.fillStyle = theme.bg;
     ctx.fillRect(0, 0, W, H);
+
+    // ── Subtle grid pattern for maze (stone tiles) ───────────────────────────
+    if (!isRoom) {
+      ctx.strokeStyle = 'rgba(80,70,140,0.25)';
+      ctx.lineWidth = 1;
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const cx = c * CELL_SIZE;
+          const cy = r * CELL_SIZE;
+          // Checkerboard stone effect
+          ctx.fillStyle = (r + c) % 2 === 0 ? theme.floor : theme.floorAlt;
+          ctx.fillRect(cx + theme.wallWidth, cy + theme.wallWidth,
+            CELL_SIZE - theme.wallWidth * 2, CELL_SIZE - theme.wallWidth * 2);
+        }
+      }
+    }
 
     // ── Cell floors ─────────────────────────────────────────────────────────
     for (let r = 0; r < rows; r++) {
@@ -53,38 +88,48 @@ const MazeCanvas: React.FC<MazeCanvasProps> = ({
         const cx = c * CELL_SIZE;
         const cy = r * CELL_SIZE;
 
-        ctx.fillStyle = isRoom ? '#1e5c38' : '#1b4332';
-        ctx.fillRect(
-          cx + WALL_WIDTH,
-          cy + WALL_WIDTH,
-          CELL_SIZE - WALL_WIDTH * 2,
-          CELL_SIZE - WALL_WIDTH * 2
-        );
+        if (isRoom) {
+          // Warm wood-like floor
+          ctx.fillStyle = (r + c) % 2 === 0 ? '#1e5530' : '#1a4a28';
+          ctx.fillRect(
+            cx + theme.wallWidth, cy + theme.wallWidth,
+            CELL_SIZE - theme.wallWidth * 2, CELL_SIZE - theme.wallWidth * 2
+          );
+        }
 
         // Exit door glow
         if (cell.isExit) {
           const canExit = isRoom ? allWatered : true;
+          const [gr, gg, gb] = theme.exitGlow;
           if (canExit) {
             const grd = ctx.createRadialGradient(
               cx + CELL_SIZE / 2, cy + CELL_SIZE / 2, 2,
-              cx + CELL_SIZE / 2, cy + CELL_SIZE / 2, CELL_SIZE / 2
+              cx + CELL_SIZE / 2, cy + CELL_SIZE / 2, CELL_SIZE * 0.8
             );
-            grd.addColorStop(0, `rgba(255,215,0,${0.5 + 0.3 * Math.sin(pulseRef.current)})`);
-            grd.addColorStop(1, 'rgba(255,215,0,0)');
+            const a = 0.5 + 0.35 * Math.sin(pulseRef.current);
+            grd.addColorStop(0, `rgba(${gr},${gg},${gb},${a})`);
+            grd.addColorStop(1, `rgba(${gr},${gg},${gb},0)`);
             ctx.fillStyle = grd;
             ctx.fillRect(cx, cy, CELL_SIZE, CELL_SIZE);
           } else {
-            ctx.fillStyle = 'rgba(80,30,0,0.5)';
-            ctx.fillRect(cx + WALL_WIDTH, cy + WALL_WIDTH, CELL_SIZE - WALL_WIDTH * 2, CELL_SIZE - WALL_WIDTH * 2);
+            ctx.fillStyle = 'rgba(60,20,0,0.6)';
+            ctx.fillRect(cx + theme.wallWidth, cy + theme.wallWidth,
+              CELL_SIZE - theme.wallWidth * 2, CELL_SIZE - theme.wallWidth * 2);
           }
         }
       }
     }
 
     // ── Walls ───────────────────────────────────────────────────────────────
-    ctx.strokeStyle = isRoom ? '#74c69d' : '#52b788';
-    ctx.lineWidth = WALL_WIDTH;
+    ctx.strokeStyle = theme.wall;
+    ctx.lineWidth = theme.wallWidth;
     ctx.lineCap = 'square';
+
+    // Maze walls get a glow effect
+    if (!isRoom) {
+      ctx.shadowColor = '#7c6fc4';
+      ctx.shadowBlur = 6;
+    }
 
     for (let r = 0; r < rows; r++) {
       for (let c = 0; c < cols; c++) {
@@ -93,13 +138,14 @@ const MazeCanvas: React.FC<MazeCanvasProps> = ({
         const cy = r * CELL_SIZE;
 
         ctx.beginPath();
-        if (cell.walls.top)    { ctx.moveTo(cx, cy);               ctx.lineTo(cx + CELL_SIZE, cy); }
-        if (cell.walls.right)  { ctx.moveTo(cx + CELL_SIZE, cy);   ctx.lineTo(cx + CELL_SIZE, cy + CELL_SIZE); }
-        if (cell.walls.bottom) { ctx.moveTo(cx, cy + CELL_SIZE);   ctx.lineTo(cx + CELL_SIZE, cy + CELL_SIZE); }
-        if (cell.walls.left)   { ctx.moveTo(cx, cy);               ctx.lineTo(cx, cy + CELL_SIZE); }
+        if (cell.walls.top)    { ctx.moveTo(cx, cy);             ctx.lineTo(cx + CELL_SIZE, cy); }
+        if (cell.walls.right)  { ctx.moveTo(cx + CELL_SIZE, cy); ctx.lineTo(cx + CELL_SIZE, cy + CELL_SIZE); }
+        if (cell.walls.bottom) { ctx.moveTo(cx, cy + CELL_SIZE); ctx.lineTo(cx + CELL_SIZE, cy + CELL_SIZE); }
+        if (cell.walls.left)   { ctx.moveTo(cx, cy);             ctx.lineTo(cx, cy + CELL_SIZE); }
         ctx.stroke();
       }
     }
+    ctx.shadowBlur = 0;
 
     // ── Exit icon ───────────────────────────────────────────────────────────
     {
@@ -109,7 +155,7 @@ const MazeCanvas: React.FC<MazeCanvasProps> = ({
       ctx.font = EF(CELL_SIZE * 0.55);
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.globalAlpha = canExit ? 1 : 0.3;
+      ctx.globalAlpha = canExit ? 1 : 0.25;
       ctx.fillText(isRoom ? '🚪' : '🏁', ex, ey);
       ctx.globalAlpha = 1;
     }
