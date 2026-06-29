@@ -48,6 +48,8 @@ function carveMaze(cells: Cell[][], rows: number, cols: number, startR: number, 
   carve(startR, startC);
 }
 
+const FURNITURE = ['🪑', '🛋️', '📦', '🗄️', '🪣', '🧺', '🪴', '🖼️'];
+
 // ── ROOM: open rectangular room with hidden flowers ──────────────────────────
 export function generateRoom(level: number): GameLevel {
   const seed = level * 99991 + 1234;
@@ -56,48 +58,30 @@ export function generateRoom(level: number): GameLevel {
   const cols = Math.min(6 + Math.floor(level * 0.5), 10);
   const rows = Math.min(5 + Math.floor(level * 0.5), 9);
 
-  // All walls open (open room), only outer border stays
+  // Open room — only outer border walls
   const cells: Cell[][] = [];
   for (let r = 0; r < rows; r++) {
     cells[r] = [];
     for (let c = 0; c < cols; c++) {
       cells[r][c] = {
-        x: c,
-        y: r,
+        x: c, y: r,
         walls: {
-          top: r === 0,
-          right: c === cols - 1,
+          top:    r === 0,
+          right:  c === cols - 1,
           bottom: r === rows - 1,
-          left: c === 0,
+          left:   c === 0,
         },
       };
     }
   }
 
-  // Add a few random internal walls to make it look like a room with furniture
-  const internalWallCount = level + 2;
-  for (let i = 0; i < internalWallCount; i++) {
-    const r = Math.floor(rng() * (rows - 2)) + 1;
-    const c = Math.floor(rng() * (cols - 2)) + 1;
-    const side = Math.floor(rng() * 2); // 0=right, 1=bottom
-    if (side === 0 && c < cols - 1) {
-      cells[r][c].walls.right = true;
-      cells[r][c + 1].walls.left = true;
-    } else if (r < rows - 1) {
-      cells[r][c].walls.bottom = true;
-      cells[r + 1][c].walls.top = true;
-    }
-  }
-
   const playerStart: Position = { x: 0, y: 0 };
-
-  // Exit door on the right wall, middle height — leads to maze
   const exitRow = Math.floor(rows / 2);
   const exitPosition: Position = { x: cols - 1, y: exitRow };
-  cells[exitRow][cols - 1].walls.right = false; // open the door in the wall
+  cells[exitRow][cols - 1].walls.right = false;
   cells[exitRow][cols - 1].isExit = true;
 
-  // Place flowers — more per level, better hidden
+  // ── Place flowers ──────────────────────────────────────────────────────
   const flowerCount = 2 + level;
   const allPositions: Position[] = [];
   for (let r = 0; r < rows; r++) {
@@ -108,7 +92,6 @@ export function generateRoom(level: number): GameLevel {
     }
   }
 
-  // Sort by distance from corners (harder = farther from start)
   allPositions.sort((a, b) => (b.x + b.y) - (a.x + a.y));
   const farFraction = Math.min(0.4 + level * 0.05, 1.0);
   const pool = shuffle(allPositions.slice(0, Math.ceil(allPositions.length * farFraction)), rng);
@@ -137,6 +120,27 @@ export function generateRoom(level: number): GameLevel {
     watered: false,
     emoji: shuffledEmojis[i % shuffledEmojis.length],
   }));
+
+  // ── Place furniture to hide flowers ────────────────────────────────────
+  // Every flower cell gets a piece of furniture on top (hidden until adjacent)
+  const shuffledFurniture = shuffle(FURNITURE, rng);
+  flowers.forEach((flower, i) => {
+    cells[flower.position.y][flower.position.x].furniture =
+      shuffledFurniture[i % shuffledFurniture.length];
+    cells[flower.position.y][flower.position.x].hiddenFlower = true;
+  });
+
+  // Add a few extra decoy furniture pieces (no flower underneath)
+  const decoyCount = Math.min(level + 1, 5);
+  const emptyPositions = allPositions.filter(
+    (p) => !pickedPositions.find((f) => f.x === p.x && f.y === p.y)
+      && !(p.x === 0 && p.y === 0)
+  );
+  const decoys = shuffle(emptyPositions, rng).slice(0, decoyCount);
+  decoys.forEach((pos, i) => {
+    cells[pos.y][pos.x].furniture =
+      shuffledFurniture[(flowers.length + i) % shuffledFurniture.length];
+  });
 
   return { level, cols, rows, cells, flowers, playerStart, exitPosition };
 }

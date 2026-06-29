@@ -20,6 +20,8 @@ export interface Cell {
     left: boolean;
   };
   isExit?: boolean;
+  furniture?: string;   // emoji of a furniture piece blocking the cell
+  hiddenFlower?: boolean; // flower is hidden behind furniture here
 }
 
 export interface GameLevel {
