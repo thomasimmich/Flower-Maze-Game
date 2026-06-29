@@ -122,7 +122,6 @@ export function generateRoom(level: number): GameLevel {
   }));
 
   // ── Place furniture to hide flowers ────────────────────────────────────
-  // Every flower cell gets a piece of furniture on top (hidden until adjacent)
   const shuffledFurniture = shuffle(FURNITURE, rng);
   flowers.forEach((flower, i) => {
     cells[flower.position.y][flower.position.x].furniture =

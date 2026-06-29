@@ -9,7 +9,6 @@ interface MazeCanvasProps {
   phase: GamePhase;
   onTap: (cellX: number, cellY: number) => void;
 }
-
 const CELL_SIZE = 48;
 const WALL_WIDTH = 3;
 const PLAYER_RADIUS = 14;
