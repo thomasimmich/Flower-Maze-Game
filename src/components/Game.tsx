@@ -111,9 +111,9 @@ const Game: React.FC = () => {
     rainTimerRef.current = window.setInterval(() => {
       const now = Date.now();
       setFlowers(prev => prev.map(f => {
-        if (f.watered || !f.witheredAt) return f;
+        if (!f.witheredAt) return f;
         if (now > f.witheredAt) {
-          // Blume verdorrt → zurücksetzen und neue witheredAt setzen
+          // Blume verdorrt → watered zurücksetzen, neue Zeit setzen
           return { ...f, watered: false, witheredAt: now + RAIN_WITHER_TIME };
         }
         return f;
@@ -223,7 +223,7 @@ const Game: React.FC = () => {
       if (flower) {
         setFlowers((prev) => prev.map((f) =>
           f.id === flower.id
-            ? { ...f, watered: true, witheredAt: undefined }
+            ? { ...f, watered: true, witheredAt: activity === 'rain' ? Date.now() + RAIN_WITHER_TIME : undefined }
             : f
         ));
         const remaining = flowers.filter((f) => !f.watered).length - 1;
