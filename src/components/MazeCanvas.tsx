@@ -146,7 +146,7 @@ const MazeCanvas: React.FC<MazeCanvasProps> = ({
         // Haus-Icon — gesperrt wenn noch Blumen fehlen
         ctx.font = EF(CELL_SIZE * 0.72);
         ctx.globalAlpha = canExit ? 1 : 0.4;
-        ctx.fillText('🏠', ex, ey);
+        ctx.fillText('🏰', ex, ey);
         ctx.globalAlpha = 1;
         // Schloss-Overlay wenn gesperrt
         if (!canExit) {
