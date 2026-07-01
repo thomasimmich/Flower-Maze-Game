@@ -34,6 +34,10 @@ const Game: React.FC = () => {
   const [gatePassedRow, setGatePassedRow] = useState<number | null>(null);
   const [gateTimeLeft, setGateTimeLeft] = useState(GATE_TIME_LIMIT);
 
+  // Fußball
+  const [hasBall, setHasBall] = useState(false);
+  const [ballShot, setBallShot] = useState(false);
+
   // Darkness
   const [isDark, setIsDark] = useState(false);
 
@@ -70,6 +74,8 @@ const Game: React.FC = () => {
     setGatePassedRow(null);
     setGateTimeLeft(GATE_TIME_LIMIT);
     gateTimeRef.current = GATE_TIME_LIMIT;
+    setHasBall(false);
+    setBallShot(false);
     setIsDark(act === 'darkness');
     startTimeRef.current = Date.now();
 
@@ -102,25 +108,10 @@ const Game: React.FC = () => {
     return () => clearInterval(timerRef.current);
   }, [gameState]);
 
-  // ── Regen: Blumen verdorren ──────────────────────────────────────────────
+  // ── Regen: nur Optik, Blumen verdorren NICHT ────────────────────────────
   useEffect(() => {
-    if (activity !== 'rain' || phase !== 'room' || gameState !== 'playing') {
-      clearInterval(rainTimerRef.current);
-      return;
-    }
-    rainTimerRef.current = window.setInterval(() => {
-      const now = Date.now();
-      setFlowers(prev => prev.map(f => {
-        if (!f.witheredAt) return f;
-        if (now > f.witheredAt) {
-          // Blume verdorrt → watered zurücksetzen, neue Zeit setzen
-          return { ...f, watered: false, witheredAt: now + RAIN_WITHER_TIME };
-        }
-        return f;
-      }));
-    }, 500);
-    return () => clearInterval(rainTimerRef.current);
-  }, [activity, phase, gameState]);
+    clearInterval(rainTimerRef.current);
+  }, []);
 
   // ── Tor-Animation ────────────────────────────────────────────────────────
   useEffect(() => {
@@ -177,18 +168,42 @@ const Game: React.FC = () => {
         setTimeout(() => setMessage(''), 800);
         return;
       }
+      // Durch das Loch – Ball dabei?
+      if (!hasBall) {
+        setMessage('⚽ Hol erst den Ball!');
+        setTimeout(() => setMessage(''), 1200);
+        return;
+      }
+      setBallShot(true);
       setGatePassedRow(newY);
-      setMessage('✅ Tor passiert!');
-      setTimeout(() => setMessage(''), 1500);
+      setHasBall(false);
+      setMessage('🎉 Tor! Gut geschossen!');
+      setTimeout(() => setMessage(''), 2000);
     }
 
     setPlayerPos({ x: newX, y: newY });
 
+    // Ball aufheben
+    if (activity === 'gate' && !hasBall && !ballShot) {
+      const { cols: gc, rows: gr } = gameLevel;
+      const ballX = Math.floor(gc / 2);
+      const ballY = Math.floor(gr * 0.75);
+      if (newX === ballX && newY === ballY) {
+        setHasBall(true);
+        setMessage('⚽ Ball aufgehoben! Schieß ins Tor!');
+        setTimeout(() => setMessage(''), 2000);
+      }
+    }
+
     if (targetCell.isExit) {
       if (phase === 'room') {
         const needsWatering = flowers.length > 0 && !allWatered;
+        const needsBallShot = activity === 'gate' && !ballShot;
         if (needsWatering) {
           setMessage('🔒 Gieße erst alle Blumen!');
+          setTimeout(() => setMessage(''), 2000);
+        } else if (needsBallShot) {
+          setMessage('⚽ Schieß erst den Ball ins Tor!');
           setTimeout(() => setMessage(''), 2000);
         } else {
           setFinalTime(Date.now() - startTimeRef.current);
@@ -199,7 +214,7 @@ const Game: React.FC = () => {
         setGameState('levelComplete');
       }
     }
-  }, [playerPos, gameLevel, allWatered, gameState, phase, gatePassedRow, activity]);
+  }, [playerPos, gameLevel, allWatered, gameState, phase, gatePassedRow, activity, hasBall, ballShot]);
 
   // ── Keyboard ──────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -300,7 +315,7 @@ const Game: React.FC = () => {
       {/* Tor-Timer */}
       {activity === 'gate' && gameLevel.hasGate && gatePassedRow === null && phase === 'room' && (
         <div style={styles.gateTimer}>
-          🚧 Tor: {Math.ceil(Math.max(0, gateTimeLeft))}s
+          {hasBall ? '⚽ Ball dabei – schieß ins Tor!' : '⚽ Hol den Ball!'} &nbsp;|&nbsp; 🚧 {Math.ceil(Math.max(0, gateTimeLeft))}s
         </div>
       )}
 

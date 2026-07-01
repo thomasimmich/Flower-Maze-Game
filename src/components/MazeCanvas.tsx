@@ -181,10 +181,10 @@ const MazeCanvas: React.FC<MazeCanvasProps> = ({
           ctx.textBaseline = 'middle';
           ctx.fillText('⚽', cx + CELL_SIZE / 2, cy + CELL_SIZE / 2);
         } else {
-          // Blockiertes Feld – rotes Netz
-          ctx.fillStyle = 'rgba(220,50,50,0.6)';
+          // Blockiertes Feld – weißes Netz
+          ctx.fillStyle = 'rgba(255,255,255,0.15)';
           ctx.fillRect(cx, cy, CELL_SIZE, CELL_SIZE);
-          ctx.strokeStyle = 'rgba(180,20,20,0.7)';
+          ctx.strokeStyle = 'rgba(255,255,255,0.5)';
           ctx.lineWidth = 1;
           for (let i = 0; i <= 3; i++) {
             ctx.beginPath();
