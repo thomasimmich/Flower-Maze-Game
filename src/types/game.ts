@@ -20,6 +20,8 @@ export interface Cell {
     left: boolean;
   };
   isExit?: boolean;
+  isGate?: boolean;     // Teil des Tors (blockiert außer beim Loch)
+  isGateHole?: boolean; // Das bewegliche Loch im Tor
 }
 
 export interface GameLevel {
@@ -30,7 +32,11 @@ export interface GameLevel {
   flowers: Flower[];
   playerStart: Position;
   exitPosition: Position;
+  hasGate?: boolean;    // Level 3+ hat ein Tor
+  gateRow?: number;     // Zeile des Tors
+  gateStartCol?: number;
+  gateEndCol?: number;
 }
 
 export type GamePhase = 'room' | 'maze';
-export type GameState = 'playing' | 'levelComplete';
+export type GameState = 'playing' | 'levelComplete' | 'gatePenalty';

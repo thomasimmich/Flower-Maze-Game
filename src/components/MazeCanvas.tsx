@@ -7,6 +7,8 @@ interface MazeCanvasProps {
   flowers: Flower[];
   allWatered: boolean;
   phase: GamePhase;
+  gateHoleCol: number;
+  gatePassedRow: number | null;
   onTap: (cellX: number, cellY: number) => void;
 }
 const CELL_SIZE = 64;
@@ -20,6 +22,8 @@ const MazeCanvas: React.FC<MazeCanvasProps> = ({
   flowers,
   allWatered,
   phase,
+  gateHoleCol,
+  gatePassedRow,
   onTap,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -134,6 +138,50 @@ const MazeCanvas: React.FC<MazeCanvasProps> = ({
     }
     ctx.shadowBlur = 0;
 
+    // ── Tor (Level 3+, nur im Raum) ──────────────────────────────────────────
+    if (isRoom && gameLevel.hasGate && gatePassedRow === null) {
+      const { gateRow = 0, gateStartCol = 0, gateEndCol = 0 } = gameLevel;
+      for (let c = gateStartCol; c <= gateEndCol; c++) {
+        const cx = c * CELL_SIZE;
+        const cy = gateRow * CELL_SIZE;
+        const isHole = c === gateHoleCol;
+
+        if (isHole) {
+          // Loch: grüner Durchgang
+          ctx.fillStyle = 'rgba(74,222,128,0.35)';
+          ctx.fillRect(cx, cy, CELL_SIZE, CELL_SIZE);
+          ctx.font = EF(CELL_SIZE * 0.55);
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText('🟢', cx + CELL_SIZE / 2, cy + CELL_SIZE / 2);
+        } else {
+          // Tor-Wand: rote Barriere
+          ctx.fillStyle = 'rgba(220,50,50,0.75)';
+          ctx.fillRect(cx, cy, CELL_SIZE, CELL_SIZE);
+          // Tor-Gitter-Muster
+          ctx.strokeStyle = '#7f1d1d';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(cx + CELL_SIZE / 2, cy);
+          ctx.lineTo(cx + CELL_SIZE / 2, cy + CELL_SIZE);
+          ctx.moveTo(cx, cy + CELL_SIZE / 2);
+          ctx.lineTo(cx + CELL_SIZE, cy + CELL_SIZE / 2);
+          ctx.stroke();
+          ctx.font = EF(CELL_SIZE * 0.5);
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText('🚧', cx + CELL_SIZE / 2, cy + CELL_SIZE / 2);
+        }
+      }
+      // Tor-Label
+      ctx.fillStyle = '#fbbf24';
+      ctx.font = `bold 13px sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'bottom';
+      const gateCenterX = ((gateStartCol + gateEndCol) / 2 + 0.5) * CELL_SIZE;
+      ctx.fillText('🚧 Tor', gateCenterX, gateRow * CELL_SIZE - 4);
+    }
+
     // ── Exit icon ───────────────────────────────────────────────────────────
     {
       const ex = exitPosition.x * CELL_SIZE + CELL_SIZE / 2;
@@ -221,7 +269,7 @@ const MazeCanvas: React.FC<MazeCanvasProps> = ({
       ctx.textBaseline = 'middle';
       ctx.fillText('👨‍🌾', px, py);
     }
-  }, [gameLevel, playerPos, flowers, allWatered, phase]);
+  }, [gameLevel, playerPos, flowers, allWatered, phase, gateHoleCol, gatePassedRow]);
 
   useEffect(() => {
     let frame = 0;

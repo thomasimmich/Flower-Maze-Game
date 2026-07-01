@@ -78,6 +78,18 @@ export function generateRoom(level: number): GameLevel {
   cells[exitRow][cols - 1].walls.right = false;
   cells[exitRow][cols - 1].isExit = true;
 
+  // ── Gate (Level 3+) ────────────────────────────────────────────────────
+  const hasGate = level >= 3;
+  const gateRow = Math.floor(rows / 2);
+  const gateStartCol = Math.floor(cols / 4);
+  const gateEndCol = Math.floor(cols * 3 / 4);
+
+  if (hasGate) {
+    for (let c = gateStartCol; c <= gateEndCol; c++) {
+      cells[gateRow][c].isGate = true;
+    }
+  }
+
   // Place flowers
   const flowerCount = 2 + level;
   const allPositions: Position[] = [];
@@ -118,7 +130,7 @@ export function generateRoom(level: number): GameLevel {
     emoji: shuffledEmojis[i % shuffledEmojis.length],
   }));
 
-  return { level, cols, rows, cells, flowers, playerStart, exitPosition };
+  return { level, cols, rows, cells, flowers, playerStart, exitPosition, hasGate, gateRow, gateStartCol, gateEndCol };
 }
 
 // ── MAZE ─────────────────────────────────────────────────────────────────────
