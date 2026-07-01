@@ -219,7 +219,7 @@ const MazeCanvas: React.FC<MazeCanvasProps> = ({
       ctx.font = EF(CELL_SIZE * 0.72);
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText('🧑‍🌾', px, py);
+      ctx.fillText('👨‍🌾', px, py);
     }
   }, [gameLevel, playerPos, flowers, allWatered, phase]);
 
