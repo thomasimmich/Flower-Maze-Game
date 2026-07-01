@@ -195,7 +195,7 @@ const Game: React.FC = () => {
 
     if (targetCell.isExit) {
       if (phase === 'room') {
-        const needsWatering = flowers.length > 0 && !allWatered;
+        const needsWatering = flowers.length > 0 && flowers.some(f => !f.watered);
         const needsBallShot = activity === 'gate' && !ballShot;
         if (needsWatering) {
           setMessage('🔒 Gieße erst alle Blumen!');
