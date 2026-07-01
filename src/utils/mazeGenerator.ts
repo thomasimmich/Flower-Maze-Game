@@ -90,45 +90,50 @@ export function generateRoom(level: number): GameLevel {
     }
   }
 
-  // Place flowers
-  const flowerCount = 2 + level;
-  const allPositions: Position[] = [];
-  for (let r = 0; r < rows; r++) {
-    for (let c = 0; c < cols; c++) {
-      if (c === 0 && r === 0) continue;
-      if (c === cols - 1 && r === exitRow) continue;
-      allPositions.push({ x: c, y: r });
-    }
-  }
-
-  allPositions.sort((a, b) => (b.x + b.y) - (a.x + a.y));
-  const farFraction = Math.min(0.4 + level * 0.05, 1.0);
-  const pool = shuffle(allPositions.slice(0, Math.ceil(allPositions.length * farFraction)), rng);
-
-  const pickedPositions: Position[] = [];
-  for (const pos of pool) {
-    const tooClose = pickedPositions.some(
-      (p) => Math.abs(p.x - pos.x) + Math.abs(p.y - pos.y) < 2
-    );
-    if (!tooClose) pickedPositions.push(pos);
-    if (pickedPositions.length >= flowerCount) break;
-  }
-  if (pickedPositions.length < flowerCount) {
-    for (const pos of pool) {
-      if (!pickedPositions.find((p) => p.x === pos.x && p.y === pos.y)) {
-        pickedPositions.push(pos);
+  // Place flowers — nicht beim Tor-Level
+  const flowers: Flower[] = [];
+  if (!hasGate) {
+    const flowerCount = 2 + level;
+    const allPositions: Position[] = [];
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        if (c === 0 && r === 0) continue;
+        if (c === cols - 1 && r === exitRow) continue;
+        allPositions.push({ x: c, y: r });
       }
+    }
+
+    allPositions.sort((a, b) => (b.x + b.y) - (a.x + a.y));
+    const farFraction = Math.min(0.4 + level * 0.05, 1.0);
+    const pool = shuffle(allPositions.slice(0, Math.ceil(allPositions.length * farFraction)), rng);
+
+    const pickedPositions: Position[] = [];
+    for (const pos of pool) {
+      const tooClose = pickedPositions.some(
+        (p) => Math.abs(p.x - pos.x) + Math.abs(p.y - pos.y) < 2
+      );
+      if (!tooClose) pickedPositions.push(pos);
       if (pickedPositions.length >= flowerCount) break;
     }
-  }
+    if (pickedPositions.length < flowerCount) {
+      for (const pos of pool) {
+        if (!pickedPositions.find((p) => p.x === pos.x && p.y === pos.y)) {
+          pickedPositions.push(pos);
+        }
+        if (pickedPositions.length >= flowerCount) break;
+      }
+    }
 
-  const shuffledEmojis = shuffle(FLOWER_EMOJIS, rng);
-  const flowers: Flower[] = pickedPositions.map((pos, i) => ({
-    id: `flower-${level}-${i}`,
-    position: pos,
-    watered: false,
-    emoji: shuffledEmojis[i % shuffledEmojis.length],
-  }));
+    const shuffledEmojis = shuffle(FLOWER_EMOJIS, rng);
+    pickedPositions.forEach((pos, i) => {
+      flowers.push({
+        id: `flower-${level}-${i}`,
+        position: pos,
+        watered: false,
+        emoji: shuffledEmojis[i % shuffledEmojis.length],
+      });
+    });
+  }
 
   return { level, cols, rows, cells, flowers, playerStart, exitPosition, hasGate, gateRow, gateStartCol, gateEndCol };
 }

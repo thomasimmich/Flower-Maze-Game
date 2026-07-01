@@ -186,12 +186,13 @@ const Game: React.FC = () => {
 
     if (targetCell.isExit) {
       if (phase === 'room') {
-        if (allWatered) {
-          setFinalTime(Date.now() - startTimeRef.current);
-          setGameState('levelComplete');
-        } else {
+        const needsWatering = flowers.length > 0 && !allWatered;
+        if (needsWatering) {
           setMessage('🔒 Gieße erst alle Blumen!');
           setTimeout(() => setMessage(''), 2000);
+        } else {
+          setFinalTime(Date.now() - startTimeRef.current);
+          setGameState('levelComplete');
         }
       } else {
         setFinalTime(Date.now() - startTimeRef.current);
