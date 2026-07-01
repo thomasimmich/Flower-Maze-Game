@@ -57,11 +57,9 @@ const Game: React.FC = () => {
     const act = getActivity(level);
 
     // Rain: add wither timers to flowers
-    const flowersWithTimers: Flower[] = newLevel.flowers.map((f, i) => ({
+    const flowersWithTimers: Flower[] = newLevel.flowers.map((f) => ({
       ...f,
-      witheredAt: act === 'rain'
-        ? Date.now() + RAIN_WITHER_TIME + i * 2000 // nur 2s Abstand statt 5s
-        : undefined,
+      witheredAt: undefined,
     }));
 
     setGameLevel(newLevel);
@@ -238,7 +236,7 @@ const Game: React.FC = () => {
       if (flower) {
         setFlowers((prev) => prev.map((f) =>
           f.id === flower.id
-            ? { ...f, watered: true, witheredAt: activity === 'rain' ? Date.now() + RAIN_WITHER_TIME : undefined }
+            ? { ...f, watered: true, witheredAt: undefined }
             : f
         ));
         const remaining = flowers.filter((f) => !f.watered).length - 1;

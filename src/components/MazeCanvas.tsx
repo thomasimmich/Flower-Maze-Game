@@ -15,7 +15,6 @@ interface MazeCanvasProps {
 }
 
 const CELL_SIZE = 64;
-const RAIN_WITHER_TOTAL = 12000;
 const EF = (size: number) =>
   `${size}px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", serif`;
 
@@ -257,27 +256,17 @@ const MazeCanvas: React.FC<MazeCanvasProps> = ({
           ctx.font = EF(CELL_SIZE * 0.28);
           ctx.fillText('💧', fx + CELL_SIZE * 0.22, fy - CELL_SIZE * 0.22);
         } else {
-          // Regen: Countdown-Ring
-          if (activity === 'rain' && flower.witheredAt) {
-            const ratio = Math.max(0, (flower.witheredAt - Date.now()) / RAIN_WITHER_TOTAL);
-            ctx.strokeStyle = `rgba(255,${Math.floor(ratio * 180)},0,0.9)`;
-            ctx.lineWidth = 4;
-            ctx.beginPath();
-            ctx.arc(fx, fy, CELL_SIZE * 0.44, -Math.PI / 2, -Math.PI / 2 + ratio * Math.PI * 2);
-            ctx.stroke();
-            ctx.lineWidth = theme.wallWidth;
-          } else {
-            ctx.fillStyle = 'rgba(255,220,50,0.2)';
-            ctx.beginPath();
-            ctx.arc(fx, fy, CELL_SIZE * 0.42, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.strokeStyle = 'rgba(255,220,50,0.7)';
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.arc(fx, fy, CELL_SIZE * 0.42, 0, Math.PI * 2);
-            ctx.stroke();
-            ctx.lineWidth = theme.wallWidth;
-          }
+          // Normaler Ring
+          ctx.fillStyle = 'rgba(255,220,50,0.2)';
+          ctx.beginPath();
+          ctx.arc(fx, fy, CELL_SIZE * 0.42, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.strokeStyle = 'rgba(255,220,50,0.7)';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.arc(fx, fy, CELL_SIZE * 0.42, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.lineWidth = theme.wallWidth;
           ctx.strokeStyle = theme.wall;
           ctx.font = EF(CELL_SIZE * 0.6);
           ctx.textAlign = 'center';
