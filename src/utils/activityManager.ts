@@ -5,6 +5,8 @@ const ACTIVITY_MAP: Record<number, LevelActivity> = {
   2: 'rain',
   3: 'gate',
   4: 'darkness',
+  5: 'normal',
+  6: 'gate',
 };
 
 const RANDOM_POOL: LevelActivity[] = ['rain', 'gate', 'darkness'];

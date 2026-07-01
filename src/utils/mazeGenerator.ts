@@ -90,9 +90,9 @@ export function generateRoom(level: number): GameLevel {
     }
   }
 
-  // Place flowers — immer, außer auf Tor-Feldern
+  // Place flowers — immer, außer auf Tor-Feldern und in Level 6
   const flowers: Flower[] = [];
-  {
+  if (level !== 6) {
     const flowerCount = 2 + level;
     const allPositions: Position[] = [];
     for (let r = 0; r < rows; r++) {
