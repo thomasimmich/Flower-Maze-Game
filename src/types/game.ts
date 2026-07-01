@@ -8,6 +8,7 @@ export interface Flower {
   position: Position;
   watered: boolean;
   emoji: string;
+  witheredAt?: number; // timestamp wann sie verdorrt wenn nicht gegossen
 }
 
 export interface Cell {
@@ -20,8 +21,7 @@ export interface Cell {
     left: boolean;
   };
   isExit?: boolean;
-  isGate?: boolean;     // Teil des Tors (blockiert außer beim Loch)
-  isGateHole?: boolean; // Das bewegliche Loch im Tor
+  isGate?: boolean;
 }
 
 export interface GameLevel {
@@ -32,11 +32,14 @@ export interface GameLevel {
   flowers: Flower[];
   playerStart: Position;
   exitPosition: Position;
-  hasGate?: boolean;    // Level 3+ hat ein Tor
-  gateRow?: number;     // Zeile des Tors
+  hasGate?: boolean;
+  gateRow?: number;
   gateStartCol?: number;
   gateEndCol?: number;
 }
 
+// Aktivitäten pro Level
+export type LevelActivity = 'normal' | 'rain' | 'gate' | 'darkness';
+
 export type GamePhase = 'room' | 'maze';
-export type GameState = 'playing' | 'levelComplete' | 'gatePenalty';
+export type GameState = 'playing' | 'levelComplete';
