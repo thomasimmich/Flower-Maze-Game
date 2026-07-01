@@ -90,15 +90,17 @@ export function generateRoom(level: number): GameLevel {
     }
   }
 
-  // Place flowers — nicht beim Tor-Level
+  // Place flowers — immer, außer auf Tor-Feldern
   const flowers: Flower[] = [];
-  if (!hasGate) {
+  {
     const flowerCount = 2 + level;
     const allPositions: Position[] = [];
     for (let r = 0; r < rows; r++) {
       for (let c = 0; c < cols; c++) {
         if (c === 0 && r === 0) continue;
         if (c === cols - 1 && r === exitRow) continue;
+        // Keine Blumen auf Tor-Feldern
+        if (hasGate && r === gateRow && c >= gateStartCol && c <= gateEndCol) continue;
         allPositions.push({ x: c, y: r });
       }
     }
