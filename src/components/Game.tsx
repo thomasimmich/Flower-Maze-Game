@@ -15,7 +15,7 @@ function formatTime(ms: number): string {
 }
 
 const GATE_TIME_LIMIT = 15;
-const RAIN_WITHER_TIME = 25000; // 25s bis eine Blume verdorrt
+const RAIN_WITHER_TIME = 12000; // 12s bis eine Blume verdorrt (war 25s)
 
 const Game: React.FC = () => {
   const [showTitle, setShowTitle] = useState(true);
@@ -56,7 +56,7 @@ const Game: React.FC = () => {
     const flowersWithTimers: Flower[] = newLevel.flowers.map((f, i) => ({
       ...f,
       witheredAt: act === 'rain'
-        ? Date.now() + RAIN_WITHER_TIME + i * 5000 // staggered
+        ? Date.now() + RAIN_WITHER_TIME + i * 2000 // nur 2s Abstand statt 5s
         : undefined,
     }));
 

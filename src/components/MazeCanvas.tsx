@@ -15,7 +15,7 @@ interface MazeCanvasProps {
 }
 
 const CELL_SIZE = 64;
-const RAIN_WITHER_TOTAL = 25000;
+const RAIN_WITHER_TOTAL = 12000;
 const EF = (size: number) =>
   `${size}px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", serif`;
 
